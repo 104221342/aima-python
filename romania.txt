@@ -1,0 +1,47 @@
+[Nodes]
+    Arad 91 492
+    Bucharest 400 327
+    Craiova 253 288
+    Drobeta 165 299
+    Eforie 562 293
+    Fagaras 305 449
+    Giurgiu 375 270
+    Hirsova 534 350
+    Iasi 473 506
+    Lugoj 165 379
+    Mehadia 168 339
+    Neamt 406 537
+    Oradea 131 571
+    Pitesti 320 368
+    Rimnicu 233 410
+    Sibiu 207 457
+    Timisoara 94 410
+    Urziceni 456 350
+    Vasrui 509 444
+    Zerind 108 531
+
+[Edges]
+    Arad Sibiu 140
+    Arad Timisoara 118
+    Arad Zerind 75
+    Bucharest Fagaras 211
+    Bucharest Giurgiu 90
+    Bucharest Pitesti 101
+    Bucharest Urziceni 85
+    Craiova Drobeta 120
+    Craiova Pitesti 138
+    Craiova Rimnicu 146
+    Drobeta Mehadia 75
+    Eforie Hirsova 86
+    Fagaras Sibiu 99
+    Hirsova Urziceni 98
+    Iasi Neamt 87
+    Iasi Vasrui 92
+    Lugoj Mehadia 70
+    Lugoj Timisoara 111
+    Oradea Sibiu 151
+    Oradea Zerind 71
+    Pitesti Rimnicu 97
+    Rimnicu Sibiu 80
+    Urziceni Vasrui 142
+    
