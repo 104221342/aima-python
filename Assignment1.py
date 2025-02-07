@@ -1,11 +1,11 @@
+from collections import deque
 import sys
 import numpy as np
 
-print('Number of arguments:', len(sys.argv), 'arguments.')
-print('Argument List:', str(sys.argv))
+
 # Read the input file
 filename = sys.argv[1]
-# method = sys.argv[2]
+method = sys.argv[2]
 
 def parse_input(filename):
     """Parse the input file to extract grid size, start state, goals, and obstacles."""
@@ -52,10 +52,101 @@ def print_grid(grid):
     for row in grid:
         print(" ".join(map(str, row)))
 
-if __name__ == "__main__":
+
+
+   
+        
+
+def depth_first_route(grid, initial_state, goal_states):
+    """
+    Perform Depth-First Search (DFS) to find a path to the nearest goal state.
+    Nodes are expanded according to the order: UP, LEFT, DOWN, RIGHT.
+    Output format (if a goal is reached):
+        filename method
+        goal number_of_nodes
+        path (sequence of directions)
+    """
+    stack = [(initial_state, [])]  # Each element: (current_state, path_taken)
+    visited = set()
+    nodes_expanded = 0
+
+    # Movement order: UP, LEFT, DOWN, RIGHT
+    moves = [(-1, 0, "UP"), (0, -1, "LEFT"), (1, 0, "DOWN"), (0, 1, "RIGHT")]
+    
+    while stack:
+        current, path = stack.pop()
+        nodes_expanded += 1
+
+        if current in goal_states:
+            print(f"{filename} {method}\n{current} {nodes_expanded}\n{' '.join(path)}")
+            return
+
+        if current in visited:
+            continue
+        visited.add(current)
+
+        x, y = current
+        # To ensure that the moves are expanded in the desired order,
+        # we push them in reverse order onto the stack.
+        for dx, dy, direction in reversed(moves):
+            next_pos = (x + dx, y + dy)
+            if 0 <= next_pos[0] < grid.shape[0] and 0 <= next_pos[1] < grid.shape[1]:
+                if grid[next_pos] != 1 and next_pos not in visited:
+                    stack.append((next_pos, path + [direction]))
+
+    print(f"{filename} {method}\nNo goal is reachable; {nodes_expanded}")
+    
+def breadth_first_route(grid, initial_state, goal_states):
+    """
+    Perform Breadth-First Search (BFS) to find a path to the nearest goal state.
+    Nodes are expanded in FIFO order, and the movement order is: UP, LEFT, DOWN, RIGHT.
+    Output format (if a goal is reached):
+        filename method
+        goal number_of_nodes
+        path (sequence of directions)
+    """
+    
+    queue = deque()
+    visited = set()
+    
+    queue.append((initial_state, []))
+    visited.add(initial_state)
+    nodes_expanded = 0
+
+    # Movement order: UP, LEFT, DOWN, RIGHT
+    moves = [(-1, 0, "UP"), (0, -1, "LEFT"), (1, 0, "DOWN"), (0, 1, "RIGHT")]
+    
+    while queue:
+        current, path = queue.popleft()
+        nodes_expanded += 1
+
+        if current in goal_states:
+            print(f"{filename} {method}\n{current} {nodes_expanded}\n{' '.join(path)}")
+            return
+
+        x, y = current
+        for dx, dy, direction in reversed(moves):
+            next_pos = (x + dx, y + dy)
+            if 0 <= next_pos[0] < grid.shape[0] and 0 <= next_pos[1] < grid.shape[1]:
+                if grid[next_pos] != 1 and next_pos not in visited:
+                    visited.add(next_pos)
+                    queue.append((next_pos, path + [direction]))
+
+    print(f"{filename} {method}\nNo goal is reachable; {nodes_expanded}")
+
+    
+'''def greedy_best_first_route(map):
+    
+def a_star_route(map):
+    
+def iterative_deepening_route(map):
+    
+def beam_route(map):'''
+
+def main():
     # Ensure proper usage
-    if len(sys.argv) < 2:
-        print("Usage: python Assignment1.py <input_file>")
+    if len(sys.argv) < 3:
+        print("Usage: python Assignment1.py <filename> <method>")
         sys.exit(1)
 
 
@@ -65,22 +156,16 @@ if __name__ == "__main__":
     # Create the grid
     grid = create_grid(rows, cols, initial_state, goal_states, obstacles)
 
-    # Print the grid
-    print_grid(grid)
 
-   
-        
+    
+    if method == "DFS":
+        depth_first_route(grid, initial_state, set(goal_states)) 
+    elif method == "BFS":
+        breadth_first_route(grid, initial_state, set(goal_states))
+    else:
+        print("Unsupported search method.")
+    
+    
 
-'''def depth_first_route(map):
-    # Start at the first node
-    current_node = list(map.keys())[0]
-    
-def breath_first_route(map):
-    
-def greedy_best_first_route(map):
-    
-def a_star_route(map):
-    
-def iterative_deepening_route(map):
-    
-def beam_route(map):'''
+if __name__ == "__main__":
+    main()
