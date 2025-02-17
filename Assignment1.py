@@ -107,7 +107,7 @@ def depth_first_route(grid, initial_state, goal_states):
         x, y = current
         # To ensure that the moves are expanded in the desired order,
         # we push them in reverse order onto the stack.
-        for dx, dy, direction in reversed(moves):
+        for dx, dy, direction in moves:
             next_pos = (x + dx, y + dy)
             if is_valid_move(next_pos,grid) and next_pos not in visited:
                 stack.append((next_pos, path + [direction]))
@@ -143,7 +143,7 @@ def breadth_first_route(grid, initial_state, goal_states):
             return
 
         x, y = current
-        for dx, dy, direction in reversed(moves):
+        for dx, dy, direction in moves:
             next_pos = (x + dx, y + dy)
             # The move is valid if it's within bounds and not an obstacle.
             if is_valid_move(next_pos, grid) and next_pos not in visited:
@@ -242,54 +242,61 @@ def a_star_route(grid, initial_state, goal_states):
     
     print(f"{filename} {method}\nNo goal is reachable; {nodes_expanded}")
 
-def depth_limited_search(grid, state, goal_states, depth_limit, path, visited):
-    """
-    Depth-limited search (DLS) for use in Iterative Deepening Depth-First Search (IDDFS).
-    """
-    if state in goal_states:
-        return path, True  # Found a goal
-    
-    if depth_limit == 0:
-        return None, False  # Depth limit reached
 
-    x, y = state
-    moves = [(-1, 0, "UP"), (0, -1, "LEFT"), (1, 0, "DOWN"), (0, 1, "RIGHT")]
-    
-    cutoff_occurred = False
-    for dx, dy, direction in moves:
-        next_state = (x + dx, y + dy)
-        if is_valid_move(next_state, grid) and next_state not in visited:
-            visited.add(next_state)
-            result, found = depth_limited_search(grid, next_state, goal_states, depth_limit - 1, path + [direction], visited)
-            if found:
-                return result, True
-            if result is None:
-                cutoff_occurred = True  # If a deeper level could be useful
-
-    return None, cutoff_occurred
     
 def iterative_deepening_route(grid, initial_state, goal_states):
     """
-    Iterative Deepening Depth-First Search (IDDFS).
+    Iterative Deepening Depth-First Search (IDDFS) to find a path to one of the goal states.
+    Uses a nested depth-limited search (DLS) that avoids cycles via the current path.
+    Expands nodes in the order: UP, LEFT, DOWN, RIGHT.
     """
-     
-    depth = 0
+    filename = sys.argv[1]
+    method = "IDDFS"
     nodes_expanded = 0
+    moves = [(-1, 0, "UP"), (0, -1, "LEFT"), (1, 0, "DOWN"), (0, 1, "RIGHT")]
+    
+    def dls(state, depth, path, visited):
+        nonlocal nodes_expanded
+        nodes_expanded += 1
+        if state in goal_states:
+            return path, False  # Found a solution; no cutoff
+        if depth == 0:
+            return None, True  # Reached the depth limit; signal cutoff
+        cutoff_occurred = False
+        for dx, dy, direction in moves:
+            next_state = (state[0] + dx, state[1] + dy)
+            if is_valid_move(next_state, grid) and next_state not in visited:
+                visited.add(next_state)
+                result, cutoff_here = dls(next_state, depth - 1, path + [direction], visited)
+                if result is not None:
+                    return result, False
+                if cutoff_here:
+                    cutoff_occurred = True
+                visited.remove(next_state)
+        return None, cutoff_occurred
 
+    depth = 0
     while True:
-        visited = {initial_state}
-        path, found = depth_limited_search(grid, initial_state, goal_states, depth, [], visited)
-        nodes_expanded += len(visited)  # Count visited nodes at each depth level
-        
-        if found:
-            print(f"{filename} {method}\n{initial_state} {nodes_expanded}\n{' '.join(path)}")
+        visited = set([initial_state])
+        result, cutoff = dls(initial_state, depth, [], visited)
+        if result is not None:
+            # Determine the final state reached by applying the result moves from the initial state
+            current = initial_state
+            for move in result:
+                if move == "UP":
+                    current = (current[0] - 1, current[1])
+                elif move == "LEFT":
+                    current = (current[0], current[1] - 1)
+                elif move == "DOWN":
+                    current = (current[0] + 1, current[1])
+                elif move == "RIGHT":
+                    current = (current[0], current[1] + 1)
+            print(f"{filename} {method}\n{current} {nodes_expanded}\n{' '.join(result)}")
             return
-        elif path is None:  # No goal found and no deeper search possible
+        if not cutoff:
             print(f"{filename} {method}\nNo goal is reachable; {nodes_expanded}")
             return
-        
-        depth += 1  # Increase depth limit for the next iteration
-
+        depth += 1
 
 def beam_route(grid, initial_state, goal_states, beam_width=2):
     """
