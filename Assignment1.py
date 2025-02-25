@@ -250,8 +250,7 @@ def iterative_deepening_route(grid, initial_state, goal_states):
     Uses a nested depth-limited search (DLS) that avoids cycles via the current path.
     Expands nodes in the order: UP, LEFT, DOWN, RIGHT.
     """
-    filename = sys.argv[1]
-    method = "IDDFS"
+    
     nodes_expanded = 0
     moves = [(-1, 0, "UP"), (0, -1, "LEFT"), (1, 0, "DOWN"), (0, 1, "RIGHT")]
     
