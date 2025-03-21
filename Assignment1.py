@@ -18,10 +18,10 @@ def parse_input(filename):
     rows, cols = grid_dims
 
     # Initial state
-    initial_state = eval(lines[1])  # (row, col)
+    initial_state = tuple(reversed(eval(lines[1])))  # (row, col)
 
     # Goal states
-    goal_states = [eval(goal) for goal in lines[2].split('|')]  # [(row1, col1), (row2, col2)]
+    goal_states = [tuple(reversed(eval(goal))) for goal in lines[2].split('|')]  # [(row1, col1), (row2, col2)]
 
     # Obstacles
     obstacles = [eval(obstacle) for obstacle in lines[3:]]  # [(row, col, width, height), ...]
@@ -33,12 +33,12 @@ def create_grid(rows, cols, initial_state, goal_states, obstacles):
     # Initialize the grid with empty cells (0)
     grid = np.zeros((rows, cols), dtype=int)
 
-    # Mark the initial state (-1)
-    grid[initial_state[1],initial_state[0]] = -1
+    # Mark the initial state (-1) using the inverted coordinates
+    grid[initial_state[0], initial_state[1]] = -1
 
     # Mark the goal states (2)
     for goal in goal_states:
-        grid[goal[1],goal[0]] = 2
+        grid[goal[0], goal[1]] = 2
 
     # Mark obstacles (1)
     for obstacle in obstacles:
@@ -80,10 +80,7 @@ def depth_first_route(grid, initial_state, goal_states):
     """
     Perform Depth-First Search (DFS) to find a path to the nearest goal state.
     Nodes are expanded according to the order: UP, LEFT, DOWN, RIGHT.
-    Output format (if a goal is reached):
-        filename method
-        goal number_of_nodes
-        path (sequence of directions)
+    
     """
     stack = [(initial_state, [])]  # Each element: (current_state, path_taken)
     visited = set()
@@ -105,8 +102,7 @@ def depth_first_route(grid, initial_state, goal_states):
         visited.add(current)
 
         x, y = current
-        # To ensure that the moves are expanded in the desired order,
-        # we push them in reverse order onto the stack.
+        
         for dx, dy, direction in moves:
             next_pos = (x + dx, y + dy)
             if is_valid_move(next_pos,grid) and next_pos not in visited:
@@ -118,10 +114,6 @@ def breadth_first_route(grid, initial_state, goal_states):
     """
     Perform Breadth-First Search (BFS) to find a path to the nearest goal state.
     Nodes are expanded in FIFO order, and the movement order is: UP, LEFT, DOWN, RIGHT.
-    Output format (if a goal is reached):
-        filename method
-        goal number_of_nodes
-        path (sequence of directions)
     """
     
     queue = deque()
@@ -358,7 +350,7 @@ def main():
     elif method == "CUS1":
         iterative_deepening_route(grid, initial_state, goal_states)
     elif method == "CUS2":
-        beam_route(grid, initial_state, goal_states, 2)
+        beam_route(grid, initial_state, goal_states, 5)
     else:
         print("Unsupported search method.")
     
